@@ -4,8 +4,14 @@ import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 
 import { Home } from "./pages/home";
-import { Demo } from "./pages/demo";
-import { Single } from "./pages/single";
+import { Characters } from "./pages/characters";
+import { Planets } from "./pages/planets";
+import { Species } from "./pages/species";
+import { Details } from "./pages/details";
+import { PlanetDetails } from "./pages/planetDetails";
+import { SpecieDetails } from "./pages/specieDetails";
+import { Contacts } from "./pages/contacts";
+import { EditContacts } from "./pages/editContacts";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -26,9 +32,15 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route element={<Home />} path="/" />
-                        <Route element={<Demo />} path="/demo" />
-                        <Route element={<Single />} path="/single/:theid" />
-                        <Route element={<h1>Not found!</h1>} />
+                        <Route element={<Characters />} path="/characters" />
+                        <Route element={<Details index={0} />} path="/details" />
+                        <Route element={<Planets />} path="/planets" />
+                        <Route element={<PlanetDetails />} path="/planetsDetails" />
+                        <Route element={<Species />} path="/species" />
+                        <Route element={<SpecieDetails />} path="/specieDetails" />
+                        <Route element={<Contacts />} path="/contacts" />
+                        <Route element={<EditContacts />} path="/editContacts" />
+                        <Route element={<h1>Not found!</h1>} path="*" />
                     </Routes>
                     <Footer />
                 </ScrollToTop>

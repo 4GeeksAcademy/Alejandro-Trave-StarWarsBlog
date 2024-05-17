@@ -1,7 +1,10 @@
-/*
-    home.css: This website contains selectors only used in home.css
-
-    All pages share the styles on index.css but you should create 
-    one more css for each page that will contain the selected used 
-    on that page only (the ones not reused in other pages).
-*/
+#vader{
+    width: 40em;
+}
+.logo{
+    width: 200px;
+}
+body {
+    background-image: url(https://images.unsplash.com/photo-1615457670617-6b32cc6720a0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+    background-size: cover;
+}

@@ -1,54 +1,172 @@
+import { useState } from "react";
+
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+    return {
+        store: {
+            message: null,
+            characters: [],
+            currentCharacter: [],
+            currentUid: [],
+            currentPlanet: [],
+            currentSpecie: [],
+            planetUid: [],
+            specieUid: [],
+            favorites: [],
+            planets: [],
+            species: [],	
+            contact: {}	
+        },
+        actions: {
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+            getCharacters: async () => {
+                const response = await fetch("https://www.swapi.tech/api/people");
+                const data = await response.json();
+                setStore({ characters: data.results });
+                return data;
+            },
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+            getPlanets: async () => {
+                const response = await fetch("https://www.swapi.tech/api/planets");
+                const planetData = await response.json();
+                setStore({ planets: planetData.results });
+                return planetData;
+            },
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+            getSpecies: async () => {
+                const response = await fetch("https://www.swapi.tech/api/species");
+                const specieData = await response.json();
+                setStore({ species: specieData.results });
+                return specieData;
+            },
+
+            getCurrent: async (index) => {
+                setStore({ currentCharacter: null });
+                const details = await fetch(index);
+                const data = await details.json();
+                setStore({ currentCharacter: data.result.properties });
+                setStore({ currentUid: data.result.uid });
+                return details;
+            },
+    
+            getCurrentPlanet: async (index) => {
+                setStore({ currentPlanet: null });
+                const details = await fetch(index);
+                const data = await details.json();
+                setStore({ currentPlanet: data.result.properties });
+                setStore({ planetUid: data.result.uid });
+                return details;
+            },
+            
+            getCurrentSpecie: async (index) => {
+                setStore({ currentSpecie: null });
+                const details = await fetch(index);
+                const data = await details.json();
+                setStore({ currentSpecie: data.result.properties });
+                setStore({ specieUid: data.result.uid });
+                console.log(data.result.properties);
+                console.log(data.result.uid);
+                return details;
+            },
+
+            addFavorite: (element) => {
+                const store = getStore();
+                const favorites = store.favorites;
+                const index = favorites.findIndex(fav => fav.id === element.uid && fav.type === 'character');
+                
+                if (index !== -1) {
+                    setStore({ favorites: favorites.filter(fav => fav.id !== element.uid || fav.type !== 'character') });
+                    alert("Personaje eliminado de favoritos");
+                } else {
+                    setStore({ favorites: [...favorites, { id: element.uid, element: element.name, type: 'character' }] });
+                    alert("Personaje añadido a favoritos");
+                }
+            },
+
+            addFavoritePlanet: (element) => {
+                const store = getStore();
+                const favorites = store.favorites;
+                const index = favorites.findIndex(fav => fav.id === element.uid && fav.type === 'planet');
+                
+                if (index !== -1) {
+                    setStore({ favorites: favorites.filter(fav => fav.id !== element.uid || fav.type !== 'planet') });
+                    alert("Planeta eliminado de favoritos");
+                } else {
+                    setStore({ favorites: [...favorites, { id: element.uid, element: element.name, type: 'planet' }] });
+                    alert("Planeta añadido a favoritos");
+                }
+            },
+            addFavoriteSpecie: (element) => { 
+                const store = getStore();
+                const favorites = store.favorites;
+                const index = favorites.findIndex(fav => fav.id === element.uid && fav.type === 'specie');
+                
+                if (index !== -1) {
+                    setStore({ favorites: favorites.filter(fav => fav.id !== element.uid || fav.type !== 'specie') });
+                    alert("Especie eliminada de favoritos");
+                } else {
+                    setStore({ favorites: [...favorites, { id: element.uid, element: element.name, type: 'specie' }] });
+                    alert("Especie añadida a favoritos");
+                }
+            },
+
+            deleteFavorite: (id) => {
+                const store = getStore();
+                const updatedFavorites = store.favorites.filter(fav => fav.id !== id);
+                setStore({ favorites: updatedFavorites })},
+
+            addContact: async (name, address, email, phone) => {
+                const response = await fetch(`https://playground.4geeks.com/contact/agendas/spain/contacts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        address,
+                        email,
+                        phone
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    alert("Contacto Añadido");
+                } else {
+                    console.error("Failed to add contact");
+                }
+            },
+            saveStoreLocally: () => {
+                const store = getStore();
+                localStorage.setItem("store", JSON.stringify(store));
+            },
+
+            loadStoreFromLocal: () => {
+                const storedStore = localStorage.getItem("store");
+                if (storedStore) {
+                    setStore(JSON.parse(storedStore));
+                }
+            },
+
+            getMessage: async () => {
+                try {
+                    const resp = await fetch(process.env.BACKEND_URL + "/api/hello");
+                    const data = await resp.text();
+                    setStore({ message: data.message });
+                    return data;
+                } catch (error) {
+                    console.log("Error loading message from backend", error);
+                }
+            },
+
+            changeColor: (index, color) => {
+                const store = getStore();
+                const demo = store.demo.map((elm, i) => {
+                    if (i === index) elm.background = color;
+                    return elm;
+                });
+                setStore({ demo: demo });
+            }
+        }
+    };
 };
 
 export default getState;
