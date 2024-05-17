@@ -87,7 +87,9 @@ export const Contacts = () => {
                     <div key={agenda.id} className="row shadow todos">
                         <p className="item">
                            Name: {agenda.name} 
-                            {/* <span onClick={() => eraseTodo(todo.id)} className="float-end p-0 m-0 erase">x</span> */}
+                           <button className="btn btn-outline-danger btn-sm me-1 mt-1 float-end" onClick={() => eraseContact(contact.id)}>
+                                <i className="fas fa-trash-alt"></i>
+                            </button>
                         </p>
                         <p className="item">
                            Phone: {agenda.phone}

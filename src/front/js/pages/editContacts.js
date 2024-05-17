@@ -14,6 +14,7 @@ export const EditContacts = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         actions.addContact(name, address, email, phone);
+        navigate("/contacts");
     };
 
     const handleCancel = () => {

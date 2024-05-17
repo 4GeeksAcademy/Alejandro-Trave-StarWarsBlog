@@ -41,7 +41,6 @@ export const Planets = () => {
                             } alt={`Planet ${index}`} />
                             <div className="card-body">
                                 <h5 className="card-title">{planet.name}</h5>
-                                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                 <Link to='/planetsDetails' className="btn btn-outline-dark me-5" onClick={() => getCurrentPlanet(planet.url)}>Ver Detalles</Link>
                                 <div className="float-end">
                                 <button onClick={() => handleFavorite(index, planet)}>
