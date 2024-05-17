@@ -11,7 +11,7 @@ import { Details } from "./pages/details";
 import { PlanetDetails } from "./pages/planetDetails";
 import { SpecieDetails } from "./pages/specieDetails";
 import { Contacts } from "./pages/contacts";
-import { EditContacts } from "./pages/editContacts";
+import { AddContacts } from "./pages/addContacts";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -39,7 +39,7 @@ const Layout = () => {
                         <Route element={<Species />} path="/species" />
                         <Route element={<SpecieDetails />} path="/specieDetails" />
                         <Route element={<Contacts />} path="/contacts" />
-                        <Route element={<EditContacts />} path="/editContacts" />
+                        <Route element={<AddContacts />} path="/addContacts" />
                         <Route element={<h1>Not found!</h1>} path="*" />
                     </Routes>
                     <Footer />

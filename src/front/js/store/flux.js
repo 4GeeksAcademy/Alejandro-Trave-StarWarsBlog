@@ -14,7 +14,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             favorites: [],
             planets: [],
             species: [],	
-            contact: {}	
+            contact: []	
         },
         actions: {
 
@@ -129,11 +129,51 @@ const getState = ({ getStore, getActions, setStore }) => {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    alert("Contacto Añadido");
+                    alert("Contact added");
+                    fetchData();
                 } else {
                     console.error("Failed to add contact");
                 }
             },
+            eraseContact: async (id) => {
+                const response = await fetch(`https://playground.4geeks.com/contact/agendas/spain/contacts/${id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    const store = getStore();
+                    setStore({ contact: store.contact.filter(contact => contact.id !== id) });
+                    alert("Contact erased");
+                } else {
+                    console.error('Failed to erase contact:', response.statusText);
+                }
+            },
+
+            editContact: async (id, name, address, email, phone) => {
+                const response = await fetch(`https://playground.4geeks.com/contact/agendas/spain/contacts/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        address,
+                        email,
+                        phone
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const store = getStore();
+                    const updatedContacts = store.contact.map(contact => 
+                        contact.id === id ? { ...contact, name, address, email, phone } : contact
+                    );
+                    setStore({ contact: updatedContacts });
+                    alert("Contact updated successfully");
+                } else {
+                    console.error("Failed to update contact");
+                }
+            },
+
             saveStoreLocally: () => {
                 const store = getStore();
                 localStorage.setItem("store", JSON.stringify(store));

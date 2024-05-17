@@ -1,118 +1,167 @@
-import React, { useState, useEffect } from "react"; // Importo React y hooks
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 export const Contacts = () => {
     const [inputValue, setInputValue] = useState('');
     const [agenda, setAgenda] = useState([]);
-    const host = 'https://playground.4geeks.com/contact/docs'; // Meto url en la variable
+    const [editMode, setEditMode] = useState(false);
+    const [editId, setEditId] = useState(null);
+    const [editName, setEditName] = useState('');
+    const [editAddress, setEditAddress] = useState('');
+    const [editEmail, setEditEmail] = useState('');
+    const [editPhone, setEditPhone] = useState('');
+    const { store, actions } = useContext(Context);
 
     useEffect(() => {
-        fetchData(); // Traigo las tareas al iniciar
+        fetchData();
     }, []);
 
-     const fetchData = async () => {
+    const fetchData = async () => {
         const response = await fetch(`https://playground.4geeks.com/contact/agendas/spain`);
         if (response.ok) {
             const data = await response.json();
-            setAgenda(data.contacts.map(agenda => ({ id: agenda.id, name:agenda.name, phone:agenda.phone, email:agenda.email, address:agenda.address}))); //traigo los datos
+            setAgenda(data.contacts.map(contact => ({
+                id: contact.id,
+                name: contact.name,
+                phone: contact.phone,
+                email: contact.email,
+                address: contact.address
+            })));
         } else {
             console.error('Error al traer datos:', response.statusText);
         }
     };
 
-    /* const addTodo = async () => { // Añado datos
-        try {
-            const response = await fetch(`${host}/todos/Pepito`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    label: inputValue,
-                    is_done: false
-                })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setTodos([...todos, { id: data.id, label: inputValue }]); // Agrego las nuevas tareas al array
-                setInputValue('');
-                alert("Tarea añadida a Playground");
-            } else {
-                console.error('Error al añadir tarea:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    const handleEraseContact = async (id) => {
+        await actions.eraseContact(id);
+        fetchData();
     };
 
-    const eraseTodo = async (id) => {
-        try {
-            const response = await fetch(`${host}/todos/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                setTodos(todos.filter(todo => todo.id !== id)); // Devuelve listado menos el id a borrar
-                alert("Tarea borrada también de Playground");
-            } else {
-                console.error('Error al borrar tarea:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error al borrar tarea:', error);
-        }
+    const handleEdit = (id, name, address, email, phone) => {
+        setEditMode(true);
+        setEditId(id);
+        setEditName(name);
+        setEditAddress(address);
+        setEditEmail(email);
+        setEditPhone(phone);
     };
 
-    const eraseAll = async () => {
-
-        for (const todo of todos) { // No encontré otra forma de hacer esto
-            const response = await fetch(`${host}/todos/${todo.id}`, {
-                method: 'DELETE'
-            });
-            if (!response.ok) {
-                console.error('Error al borrar todo:', response.statusText);
-            }
-        }
-        setTodos([]); //limpio la lista de tareas
-        alert("Todas las tareas han sido borradas también de Playground");
+    const saveEditContact = async (id) => {
+        await actions.editContact(id, editName, editAddress, editEmail, editPhone);
+        setEditMode(false);
+        setEditId(null);
+        setEditName('');
+        setEditAddress('');
+        setEditEmail('');
+        setEditPhone('');
+        fetchData();
     };
- */
+
     return (
         <div className="col d-flex justify-content-center list bg-light">
             <form>
                 <div className="row shadow p-3 rounded">
-                <Link to='/editContacts'>
-				  <button type="button" className="btn btn-outline-dark btn-lg ms-3">Añadir nuevo contacto</button>
-				</Link>
+                    <Link to='/addContacts'>
+                        <button type="button" className="btn btn-outline-dark btn-lg ms-3">Añadir nuevo contacto</button>
+                    </Link>
                 </div>
-                {agenda.map(agenda => (
-                    <div key={agenda.id} className="row shadow todos">
-                        <p className="item">
-                           Name: {agenda.name} 
-                           <button className="btn btn-outline-danger btn-sm me-1 mt-1 float-end" onClick={() => eraseContact(contact.id)}>
-                                <i className="fas fa-trash-alt"></i>
-                            </button>
-                        </p>
-                        <p className="item">
-                           Phone: {agenda.phone}
-                            {/* <span onClick={() => eraseTodo(todo.id)} className="float-end p-0 m-0 erase">x</span> */}
-                        </p>
-                        <p className="item">
-                           email: {agenda.email}
-                            {/* <span onClick={() => eraseTodo(todo.id)} className="float-end p-0 m-0 erase">x</span> */}
-                        </p>
-                        <p className="item">
-                            Address: {agenda.address}
-                            {/* <span onClick={() => eraseTodo(todo.id)} className="float-end p-0 m-0 erase">x</span> */}
-                        </p>
+                {agenda.map(contact => (
+                    <div key={contact.id} className="row shadow contacts">
+                        {editMode && editId === contact.id ? (
+                            <div>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={e => setEditName(e.target.value)}
+                                    placeholder="Name"
+                                />
+                                <input
+                                    type="text"
+                                    value={editAddress}
+                                    onChange={e => setEditAddress(e.target.value)}
+                                    placeholder="Address"
+                                />
+                                <input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={e => setEditEmail(e.target.value)}
+                                    placeholder="Email"
+                                />
+                                <input
+                                    type="tel"
+                                    value={editPhone}
+                                    onChange={e => setEditPhone(e.target.value)}
+                                    placeholder="Phone"
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-primary m-1 btn-sm"
+                                    onClick={() => saveEditContact(contact.id)}
+                                >
+                                    Guardar
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-warning m-1 btn-sm"
+                                    onClick={() => {
+                                        setEditMode(false);
+                                        setEditId(null);
+                                        setEditName('');
+                                        setEditAddress('');
+                                        setEditEmail('');
+                                        setEditPhone('');
+                                    }}
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="item">
+                                    Name: {contact.name}
+                                    <button className="btn btn-outline-danger btn-sm me-1 mt-1 float-end" onClick={() => <div class="modal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Modal title</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Modal body text goes here.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-success" onClick={handleEraseContact(contact.id)}>Continue</button>
+                                                    <button type="button" class="btn btn-alert" data-dismiss="modal">Cancel</button>                                          
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>}>
+                                        <i className="fas fa-trash-alt"></i>
+                                    </button>
+                                    <span onClick={() => handleEdit(contact.id, contact.name, contact.address, contact.email, contact.phone)} className="float-end p-0 mt-2 me-2 edit">
+                                        <i className="far fa-edit"></i>
+                                    </span>
+                                </p>
+                                <p className="item">
+                                    Phone: {contact.phone}
+                                </p>
+                                <p className="item">
+                                    Email: {contact.email}
+                                </p>
+                                <p className="item">
+                                    Address: {contact.address}
+                                </p>
+                            </>
+                        )}
                     </div>
                 ))}
                 <div className="row shadow-sm foot">
                     <p className="m-1">{agenda.length} {agenda.length === 1 ? 'contacto' : 'contactos'} en la agenda</p>
                 </div>
             </form>
-            {/* <div>
-                <button type="button" onClick={eraseAll} className="btn btn-danger ms-5">Borrar todo</button>
-            </div> */}
         </div>
     );
 };
-
