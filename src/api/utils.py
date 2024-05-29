@@ -10,15 +10,18 @@ class APIException(Exception):
             self.status_code = status_code
         self.payload = payload
 
+
     def to_dict(self):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
 
+
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
+
 
 def generate_sitemap(app):
     links = ['/admin/']
@@ -29,7 +32,6 @@ def generate_sitemap(app):
             url = url_for(rule.endpoint, **(rule.defaults or {}))
             if "/admin/" not in url:
                 links.append(url)
-
     links_html = "".join(["<li><a href='" + y + "'>" + y + "</a></li>" for y in links])
     return """
         <div style="text-align: center;">
