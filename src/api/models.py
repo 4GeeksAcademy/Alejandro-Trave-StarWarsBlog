@@ -22,6 +22,18 @@ class Users(db.Model):
                 'is_active': self.is_active,
                 'first_name': self.first_name,
                 'last_name': self.last_name}
+
+class Follower(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    follower = db.relationship('Users', foreign_keys=[follower_id], backref='following')
+    followed = db.relationship('Users', foreign_keys=[followed_id], backref='followers')
+
+    def __repr__(self):
+        return f'<Follower: {self.follower_id} follows {self.followed_id}>'
+
     
 
 class Posts(db.Model):
