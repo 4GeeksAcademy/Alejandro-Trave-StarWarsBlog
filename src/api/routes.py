@@ -7,7 +7,7 @@ from flask_cors import CORS
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
-from api.models import db, Users, Posts, Characters, Planets, Species
+from api.models import db, Users, Posts, Characters, Planets, Species, Favorites
 
 
 api = Blueprint('api', __name__)
@@ -35,9 +35,25 @@ def login():
     return response_body, 401
 
 
+@api.route('/signup', methods=['POST'])
+def signup():
+    response_body = {}
+    email = request.json.get("email", None).lower()
+    password = request.json.get("password", None)
+    # Logica de verificación de un mail válido y password válido
+    user = Users()
+    user.email = email
+    user.password = password
+    user.is_active = True
+    db.session.add(user)
+    db.session.commit()
+    access_token = create_access_token(identity={'user_id': user.id,
+                                                 'user_is_admin': user.is_admin})
+    response_body['message'] = 'User Registrado y logeado'
+    response_body['access_token'] = access_token
+    return response_body, 200
 
-# Protect a route with jwt_required, which will kick out requests
-# without a valid JWT present.
+
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
@@ -62,6 +78,62 @@ def handle_user():
         response_body['message'] = 'Haga login para modificar usuarios'
         return response_body, 200
 
+
+""" @api.route('/users/<int:user_id>/favorite-characters', methods=['GET', 'POST'])
+@jwt_required()
+def handle_favoriteCharacter():
+    response_body = {}
+    current_user = get_jwt_identity()
+    
+    if request.method == 'GET':
+        rows = db.session.execute(db.select(Favorites).where(Favorites.user_id == current_user['user_id'])).scalars()
+        results = [row.serialize() for row in rows]
+        response_body['results'] = results
+        response_body['message'] = 'Listado de Personajes Favoritos'
+        return response_body, 200
+
+    if request.method == 'POST':
+        data = request.json
+        character_id = data.get('character_id')
+        
+        favorite = Favorites(
+            user_id=current_user['user_id'],
+            character_id=character_id,
+        )
+        db.session.add(favorite)
+        db.session.commit()
+        response_body['message'] = 'Favorito añadido'
+        return response_body, 200
+
+
+@api.route('/users/<int:user_id>/favorite-planets', methods=['GET', 'POST'])
+@jwt_required()
+def handle_favoritePlanet():
+    response_body = {}
+    current_user = get_jwt_identity()
+    
+    if request.method == 'GET':
+        rows = db.session.execute(db.select(Favorites).where(Favorites.user_ == current_user['user_id'])).scalars()
+        results = [row.serialize() for row in rows]
+        response_body['results'] = results
+        response_body['message'] = 'Listado de Favoritos'
+        return response_body, 200
+
+    if request.method == 'POST':
+        data = request.json
+        # Validar que los datos recibidos son correctos
+        planet_id = data.get('planet_id')
+        
+        favorite = Favorites(
+            user_id=current_user['user_id'],
+            planet_id=planet_id,
+        )
+        db.session.add(favorite)
+        db.session.commit()
+        response_body['message'] = 'Favorito añadido'
+        return response_body, 200 """
+
+
 @api.route('/posts', methods=['GET', 'POST'])
 @jwt_required()
 def handle_post():
@@ -77,6 +149,7 @@ def handle_post():
         response_body['message'] = 'Haga login para añadir un post'
         return response_body, 200
 
+
 @api.route('/characters', methods=['GET', 'POST'])
 def handle_character():
     response_body = {}
@@ -88,6 +161,20 @@ def handle_character():
         return response_body, 200
     if request.method == 'POST':
         response_body['message'] = 'Haga login para añadir un personaje'
+        return response_body, 200
+
+
+@api.route('/planets', methods=['GET', 'POST'])
+def handle_planet():
+    response_body = {}
+    if request.method == 'GET':
+        rows = db.session.execute(db.select(Planets)).scalars()
+        results = [row.serialize() for row in rows]
+        response_body['results'] = results
+        response_body['message'] = 'Listado de Planetas'
+        return response_body, 200
+    if request.method == 'POST':
+        response_body['message'] = 'Haga login para añadir un planeta'
         return response_body, 200
 
 
@@ -132,6 +219,7 @@ def handle_users(user_id):
         response_body['results'] = {}
         return response_body, 200
 
+
 @api.route('/posts/<int:post_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_posts(posts_id):
     response_body = {}
@@ -172,11 +260,12 @@ def handle_posts(posts_id):
         response_body['results'] = {}
         return response_body, 200
 
+
 @api.route('/characters/<int:character_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_characters(character_id):
     response_body = {}
     if request.method == 'GET':
-        character = db.session.execute(db.select(Characters).where(Character.id == character_id)).scalar()
+        character = db.session.execute(db.select(Characters).where(Characters.id == character_id)).scalar()
         if character:
             response_body['results'] = character.serialize()
             response_body['message'] = 'Personaje encontrado'
@@ -190,9 +279,8 @@ def handle_characters(character_id):
         print(data)
         character = db.session.execute(db.select(Characters).where(Characters.id == character_id)).scalar()
         if character:
-            character.description = data['description']
-            character.body = data['body']
-            character.image_url = data['image_url']
+            character.name = data['name']
+            character.last_name = data['last_name']
             db.session.commit()
             response_body['message'] = 'Personaje editado'
             response_body['results'] = character.serialize()
@@ -203,11 +291,51 @@ def handle_characters(character_id):
     if request.method == 'DELETE':
         character = db.session.execute(db.select(Characters).where(Characters.id == character_id)).scalar()
         if character:
-            # db.session.delete(character)
-            character.is_active = False
+            db.session.delete(character)
             db.session.commit()
             response_body['message'] = 'Personaje eliminado'
             response_body['results'] = {}
+            return response_body, 200
         response_body['message'] = 'Personaje inexistente'
         response_body['results'] = {}
-        return response_body, 200
+        return response_body, 404
+
+
+@api.route('/planets/<int:planet_id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_planets(planet_id):
+    response_body = {}
+    if request.method == 'GET':
+        planet = db.session.execute(db.select(Planets).where(Planets.id == planet_id)).scalar()
+        if planet:
+            response_body['results'] = planet.serialize()
+            response_body['message'] = 'Planeta encontrado'
+            return response_body, 200
+        response_body['message'] = 'Planeta inexistente'
+        response_body['results'] = {}
+        return response_body, 404
+    if request.method == 'PUT':
+        data = request.json
+        # TODO: Validación de datos recibidos 
+        print(data)
+        planet = db.session.execute(db.select(Planets).where(Planets.id == planet_id)).scalar()
+        if planet:
+            planet.name = data['name']
+            planet.climate = data['climate']
+            db.session.commit()
+            response_body['message'] = 'Planeta editado'
+            response_body['results'] = planet.serialize()
+            return response_body, 200
+        response_body['message'] = 'Planeta inexistente'
+        response_body['results'] = {}
+        return response_body, 404
+    if request.method == 'DELETE':
+        planet = db.session.execute(db.select(Planets).where(Planets.id == planet_id)).scalar()
+        if planet:
+            db.session.delete(planet)
+            db.session.commit()
+            response_body['message'] = 'Planeta eliminado'
+            response_body['results'] = {}
+            return response_body, 200
+        response_body['message'] = 'Planeta inexistente'
+        response_body['results'] = {}
+        return response_body, 404

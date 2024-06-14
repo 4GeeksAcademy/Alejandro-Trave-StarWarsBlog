@@ -23,6 +23,27 @@ class Users(db.Model):
                 'first_name': self.first_name,
                 'last_name': self.last_name}
 
+
+""" class Favorites(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'))
+
+    user = db.relationship('Users', backref='favorites')
+    planet = db.relationship('Planets')
+    character = db.relationship('Characters')
+
+    def __repr__(self):
+        return f'<Favorite: User {self.user_id}>'
+
+    def serialize(self):
+        return {'id': self.id,
+                'user_id': self.user_id,
+                'planet_id': self.planet_id,
+                'character_id': self.character_id,} """
+
+
 class Follower(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -68,7 +89,7 @@ class Comments(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[user_id])
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    user_to = db.relationship('Posts', foreign_keys=[post_id])
+    post_to = db.relationship('Posts', foreign_keys=[post_id])
 
     def __repr__(self):
         return f'<Post: {self.title}>'
@@ -97,9 +118,9 @@ class Characters(db.Model):
     gender = db.Column(db.String(), nullable=True)
     home_world = db.Column(db.String(), nullable=True)
     planet_id = db.Column(db.Integer(), db.ForeignKey('planets.id'))
-    planet_to = db.relationship('Planets', foreign_keys=[planet_id])
+    planet_to = db.relationship('Planets')
     def __repr__(self):
-        return f'<Post: {self.name} {self.last_name}>'
+        return f'<Character: {self.name} {self.last_name}>'
 
     def serialize(self):
         # Do not serialize the password, its a security breach
@@ -136,14 +157,14 @@ class Planets(db.Model):
         # Do not serialize the password, its a security breach
         return {'id': self.id,
                 'name': self.name,
-                diameter : self.diameter,
-                rotation_period : self.rotation_period,
-                orbital_period : self.orbital_period,
-                gravity : self.gravity,
-                population : self.population,
-                climate : self.climate,
-                terrain : self.terrain,
-                surface_water : self.surface_water}
+                'diameter' : self.diameter,
+                'rotation_period' : self.rotation_period,
+                'orbital_period' : self.orbital_period,
+                'gravity' : self.gravity,
+                'population' : self.population,
+                'climate' : self.climate,
+                'terrain' : self.terrain,
+                'surface_water' : self.surface_water}
 
 class Species(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -164,11 +185,11 @@ class Species(db.Model):
         # Do not serialize the password, its a security breach
         return {'id': self.id,
                 'name': self.name,
-                classification : self.classification,
-                designation : self.designation,
-                language : self.language,
-                avg_lifespan : self.avg_lifespan,
-                avg_height : self.avg_height,
-                hair_colors : self.hair_colors,
-                skin_colors : self.skin_colors,
-                eye_colors : self.eye_colors}
+                'classification' : self.classification,
+                'designation' : self.designation,
+                'language' : self.language,
+                'avg_lifespan' : self.avg_lifespan,
+                'avg_height' : self.avg_height,
+                'hair_colors' : self.hair_colors,
+                'skin_colors' : self.skin_colors,
+                'eye_colors' : self.eye_colors}

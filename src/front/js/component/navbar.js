@@ -55,6 +55,19 @@ export const Navbar = () => {
                             <button type="button" className="btn btn-outline-dark btn-lg ms-3">Contacts</button>
                         </Link>
                     </div>
+                    <div className="ml-auto">
+					{store.isLogin ? 
+						<>
+							<Link to="/"><button onClick={logout} className="btn btn-primary">Logout</button></Link> 
+							<Link to="/profile"><button onClick={profile} className="btn btn-primary">Profile</button></Link> 
+						</>
+						: 
+						<Link to="/login"><button className="btn btn-primary ms-2">Login</button></Link>
+					}
+					<Link to="/signup">
+						<button className="btn btn-success ms-2">Register</button>
+					</Link>
+				</div>
                 </div>
             </nav>
         </>

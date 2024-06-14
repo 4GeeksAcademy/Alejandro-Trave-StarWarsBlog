@@ -12,6 +12,10 @@ import { PlanetDetails } from "./pages/planetDetails";
 import { SpecieDetails } from "./pages/specieDetails";
 import { Contacts } from "./pages/contacts";
 import { AddContacts } from "./pages/addContacts";
+import { Login } from "./pages/login";
+import { Signup } from "./pages/signup";
+import { Dashboard } from "./pages/dashboard";
+import { Profile } from "./pages/profile";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -40,6 +44,10 @@ const Layout = () => {
                         <Route element={<SpecieDetails />} path="/specieDetails" />
                         <Route element={<Contacts />} path="/contacts" />
                         <Route element={<AddContacts />} path="/addContacts" />
+                        <Route element={<Login />} path='/login' />
+                        <Route element={<Signup />} path='/signup' />
+                        <Route element={<Dashboard />} path='/dashboard' />
+                        <Route element={<Profile />} path='/profile' />
                         <Route element={<h1>Not found!</h1>} path="*" />
                     </Routes>
                     <Footer />
