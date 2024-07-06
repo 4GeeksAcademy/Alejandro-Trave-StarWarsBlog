@@ -14,9 +14,21 @@ const getState = ({ getStore, getActions, setStore }) => {
             favorites: [],
             planets: [],
             species: [],	
-            contact: []	
+            contact: [],
+            isLogin: false,
+            currentUser: null
         },
         actions: {
+            setIsLogin: (value) => {
+                setStore({ isLogin: value });
+            },
+            setCurrentUser: (user) => {
+                setStore({ currentUser: user });
+            },
+            logout: () => {
+                setStore({ isLogin: false, currentUser: null });
+                localStorage.removeItem('token');
+            },
 
             getCharacters: async () => {
                 const response = await fetch("https://www.swapi.tech/api/people");
@@ -180,10 +192,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             loadStoreFromLocal: () => {
-                const storedStore = localStorage.getItem("store");
-                if (storedStore) {
-                    setStore(JSON.parse(storedStore));
-                }
+                const store = JSON.parse(localStorage.getItem('store'));
+                if (store) setStore(store);
             },
 
             getMessage: async () => {

@@ -9,6 +9,9 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from api.models import db, Users, Posts, Characters, Planets, Species, Favorites
 
+app = Flask(__name__)
+CORS(app)
+
 
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
@@ -22,17 +25,21 @@ def handle_hello():
 
 @api.route("/login", methods=["POST"])
 def login():
-    response_body={}
+    response_body = {}
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    user = db.session.execute(db.select(Users).where(Users.email==email, Users.password == password, Users.is_active == True)).scalar()
+    user = db.session.execute(db.select(Users).where(Users.email == email, Users.password == password, Users.is_active == True)).scalar()
     if user:
         access_token = create_access_token(identity={'user_id': user.id})
-        response_body['message'] = 'User Logeado'
+        response_body['message'] = 'User Logged in'
         response_body['access_token'] = access_token
+        response_body['results'] = {
+            'email': user.email  # Asegúrate de incluir el email aquí
+        }
         return response_body, 200
     response_body['message'] = 'Bad username or password'
     return response_body, 401
+
 
 
 @api.route('/signup', methods=['POST'])

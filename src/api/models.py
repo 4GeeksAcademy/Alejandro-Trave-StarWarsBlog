@@ -24,7 +24,7 @@ class Users(db.Model):
                 'last_name': self.last_name}
 
 
-""" class Favorites(db.Model):
+class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
@@ -41,7 +41,7 @@ class Users(db.Model):
         return {'id': self.id,
                 'user_id': self.user_id,
                 'planet_id': self.planet_id,
-                'character_id': self.character_id,} """
+                'character_id': self.character_id,}
 
 
 class Follower(db.Model):

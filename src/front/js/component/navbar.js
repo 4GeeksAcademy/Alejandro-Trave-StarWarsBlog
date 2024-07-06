@@ -1,18 +1,24 @@
 import React, { useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 
 export const Navbar = () => {
     const { store, actions } = useContext(Context);
     const numElements = store.favorites.length;
+    const navigate = useNavigate();
 
     const handleDeleteFavorite = (id) => {
         actions.deleteFavorite(id);
     };
-    
-        useEffect(() => {
-            actions.loadStoreFromLocal(); //No he conseguido esto.
-        }, []);
+
+    const handleLogout = () => {
+        actions.logout();
+        navigate("/login");
+    };
+
+    useEffect(() => {
+        actions.loadStoreFromLocal();
+    }, []);
 
     return (
         <>
@@ -30,10 +36,11 @@ export const Navbar = () => {
                         </Link>
                         <Link to='/species'>
                             <button type="button" className="btn btn-outline-dark btn-lg ms-3">Species</button>
-                        </Link><span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>                       
+                        </Link>
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>                       
                         <div className="dropdown ms-3">
                             <button className="btn btn-outline-warning dropdown-toggle btn-lg" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{numElements}</span>
+                                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{numElements}</span>
                                 Favorites
                             </button>
                             <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -56,18 +63,18 @@ export const Navbar = () => {
                         </Link>
                     </div>
                     <div className="ml-auto">
-					{store.isLogin ? 
-						<>
-							<Link to="/"><button onClick={logout} className="btn btn-primary">Logout</button></Link> 
-							<Link to="/profile"><button onClick={profile} className="btn btn-primary">Profile</button></Link> 
-						</>
-						: 
-						<Link to="/login"><button className="btn btn-primary ms-2">Login</button></Link>
-					}
-					<Link to="/signup">
-						<button className="btn btn-success ms-2">Register</button>
-					</Link>
-				</div>
+                        {store.isLogin ? 
+                            <>
+                                <button onClick={handleLogout} className="btn btn-primary">Logout</button>
+                                <Link to="/profile"><button className="btn btn-primary ms-2">Profile</button></Link>
+                            </>
+                            : 
+                            <Link to="/login"><button className="btn btn-primary ms-2">Login</button></Link>
+                        }
+                        <Link to="/signup">
+                            <button className="btn btn-success ms-2">Register</button>
+                        </Link>
+                    </div>
                 </div>
             </nav>
         </>
